@@ -1,6 +1,6 @@
 {
   "name": "playwright-image-snapshot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Enhanced screenshot comparisons for @playwright/test",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

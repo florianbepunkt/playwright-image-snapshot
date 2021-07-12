@@ -1,27 +1,32 @@
 import ssim, { Options } from "ssim.js";
+import { PNG } from "pngjs";
 
 type compareWithSSIMArgs = {
-  testImage: Uint8ClampedArray;
-  referenceImage: Uint8ClampedArray;
-  diffImage: Uint8ClampedArray;
-  width: number;
+  config: Partial<Options>;
+  diffImage: PNG;
   height: number;
-  diffConfig: Partial<Options>;
+  referenceImage: PNG;
+  testImage: PNG;
+  width: number;
 };
 
 export const compareWithSSIM = ({
-  testImage,
-  referenceImage,
+  config,
   diffImage,
-  width,
   height,
-  diffConfig,
+  referenceImage,
+  testImage,
+  width,
 }: compareWithSSIMArgs) => {
-  const test: ImageData = { data: testImage, width: width, height: height };
-  const reference: ImageData = { data: referenceImage, width: width, height: height };
-  const { ssim_map, mssim } = ssim(test, reference, diffConfig);
+  const reference: ImageData = {
+    data: new Uint8ClampedArray(referenceImage.data),
+    width: width,
+    height: height,
+  };
+  const test: ImageData = { data: new Uint8ClampedArray(testImage.data), width: width, height: height };
+  const { ssim_map, mssim } = ssim(test, reference, config);
   const diffPixels = (1 - mssim) * width * height;
-  const diffRgbaPixels = new DataView(diffImage.buffer, diffImage.byteOffset);
+  const diffRgbaPixels = new DataView(diffImage.data.buffer, diffImage.data.byteOffset);
 
   for (let ln = 0; ln !== height; ++ln) {
     for (let pos = 0; pos !== width; ++pos) {

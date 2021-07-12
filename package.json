@@ -7,6 +7,10 @@
   "files": [
     "/dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/florianbepunkt/playwright-image-snapshot.git"
+  },
   "scripts": {
     "prepublish": "tsc",
     "build": "tsc",

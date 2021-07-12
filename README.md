@@ -1,6 +1,6 @@
 # playwright-image-snapshot
 
-Enhanced image snapshots for @playwright/test. An improved port of `jest-image-snapshot` (https://github.com/americanexpress/jest-image-snapshot)
+Enhanced image snapshots for @playwright/test. A slightly modified port of `jest-image-snapshot` (https://github.com/americanexpress/jest-image-snapshot)
 
 ## Installation
 
@@ -12,4 +12,12 @@ Enhanced image snapshots for @playwright/test. An improved port of `jest-image-s
 // playwright.config.ts file
 import { toMatchImageSnapshot } from "playwright-image-snapshot";
 expect.extend({ toMatchImageSnapshot });
+
+// in your test (the following config is less prone to false positives due to text antialiasing )
+expect(await page.screenshot()).toMatchImageSnapshot("name to identify snapshot", {
+  blur: 2,
+  comparisonMethod: "ssim",
+  failureThreshold: 0.02,
+  failureThresholdType: "percent",
+});
 ```

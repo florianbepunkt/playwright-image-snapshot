@@ -9,6 +9,16 @@ Enhanced image snapshots for @playwright/test. A slightly modified port of `jest
 ## Usage
 
 ```ts
+// add a global.d.ts to your src directory (if you use TypeScript)
+declare namespace PlaywrightTest {
+  interface Matchers<R> {
+    toMatchImageSnapshot(
+      name: string,
+      options?: import("playwright-image-snapshot").ImageSnapshotOptions
+    ): R;
+  }
+}
+
 // playwright.config.ts file
 import { toMatchImageSnapshot } from "playwright-image-snapshot";
 expect.extend({ toMatchImageSnapshot });

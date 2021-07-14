@@ -1,6 +1,6 @@
 # playwright-image-snapshot
 
-Enhanced image snapshots for @playwright/test. A slightly modified port of `jest-image-snapshot` (https://github.com/americanexpress/jest-image-snapshot)
+Enhanced image snapshots for @playwright/test. A modified port of `jest-image-snapshot` (https://github.com/americanexpress/jest-image-snapshot) for Playwright.
 
 ## Installation
 

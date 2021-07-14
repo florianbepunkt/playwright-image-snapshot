@@ -18,6 +18,8 @@ export const compareWithSSIM = ({
   testImage,
   width,
 }: compareWithSSIMArgs) => {
+  // from https://github.com/americanexpress/jest-image-snapshot/blob/2ef1ca810e60c4aa9951e1f373744dd05938e4cb/src/diff-snapshot.js#L91
+
   const reference: ImageData = {
     data: new Uint8ClampedArray(referenceImage.data),
     width: width,
@@ -31,8 +33,6 @@ export const compareWithSSIM = ({
   for (let ln = 0; ln !== height; ++ln) {
     for (let pos = 0; pos !== width; ++pos) {
       const rpos = ln * width + pos;
-      // initial value is transparent.  We'll add in the SSIM offset.
-      // red (ff) green (00) blue (00) alpha (00)
       const diffValue =
         0xff000000 +
         Math.floor(

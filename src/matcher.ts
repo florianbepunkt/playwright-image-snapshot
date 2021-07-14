@@ -45,7 +45,7 @@ export class ImageSnapshotMatcher {
     return { diffRatio, pass };
   };
 
-  static getImageComparisonConfig(
+  static getComparisonConfig(
     comparisonAlgorithm: ImageSnapshotOptions["comparisonAlgorithm"],
     customConfig: ImageSnapshotOptions["comparisonConfig"]
   ) {
@@ -57,14 +57,23 @@ export class ImageSnapshotMatcher {
     return Object.assign({}, defaultConfig, customConfig);
   }
 
-  static compare = (
-    testImageBuffer: Buffer,
-    snapshotIdentifier: string,
-    snapshotsDir: (name: string) => string,
-    diffDir: (name: string) => string,
-    updateSnapshots: "all" | "none" | "missing" = "missing",
-    options: ImageSnapshotOptions
-  ): { pass: boolean; message?: string } => {
+  static compare = ({
+    diffDir,
+    name,
+    negateComparison = false,
+    options,
+    snapshotsDir,
+    testImageBuffer,
+    updateSnapshots = "missing",
+  }: {
+    diffDir: (name: string) => string;
+    name: string;
+    negateComparison: boolean;
+    options: ImageSnapshotOptions;
+    snapshotsDir: (name: string) => string;
+    testImageBuffer: Buffer;
+    updateSnapshots: "all" | "none" | "missing";
+  }): { pass: boolean; message?: string } => {
     const {
       blur,
       comparisonAlgorithm = "ssim",
@@ -75,12 +84,21 @@ export class ImageSnapshotMatcher {
 
     const result = { pass: false, message: "" };
     const writeMissingSnapshots = updateSnapshots === "all" || updateSnapshots === "missing";
-    const snapshotFile = snapshotsDir(snapshotIdentifier);
-    const snapshotPath = path.join(snapshotFile, `${snapshotIdentifier}.snap.png`);
+    const snapshotFile = snapshotsDir(name);
+    const snapshotPath = path.join(snapshotFile, `${name}.snap.png`);
 
     /** write missing snapshots */
     if (!fs.existsSync(snapshotPath) && writeMissingSnapshots) {
       const commonMissingSnapshotMessage = `${snapshotFile} is missing in snapshots`;
+
+      if (negateComparison) {
+        const message = `${commonMissingSnapshotMessage}${
+          writeMissingSnapshots ? ', matchers using ".not" won\'t write them automatically.' : "."
+        }`;
+
+        return { pass: true, message };
+      }
+
       const message = `${commonMissingSnapshotMessage}${
         writeMissingSnapshots ? ", writing actual." : "."
       }`;
@@ -94,10 +112,10 @@ export class ImageSnapshotMatcher {
       return result;
     }
 
-    const diffOutputPath = path.join(diffDir(snapshotIdentifier), `${snapshotIdentifier}.diff.png`);
+    const diffOutputPath = path.join(diffDir(name), `${name}.diff.png`);
     rimraf.sync(diffOutputPath);
 
-    const config = ImageSnapshotMatcher.getImageComparisonConfig(comparisonAlgorithm, comparisonConfig);
+    const config = ImageSnapshotMatcher.getComparisonConfig(comparisonAlgorithm, comparisonConfig);
     const testImage = PNG.sync.read(testImageBuffer);
     const referenceImage = PNG.sync.read(fs.readFileSync(snapshotPath));
     const width = testImage.width;
@@ -115,7 +133,7 @@ export class ImageSnapshotMatcher {
     const diffImage = new PNG({ width, height });
 
     if (comparisonAlgorithm === "ssim") {
-      compareWithSSIM({
+      diffPixelCount = compareWithSSIM({
         config: config as any,
         diffImage,
         height,
@@ -140,6 +158,10 @@ export class ImageSnapshotMatcher {
       failureThresholdType,
       failureThreshold,
     });
+
+    if (!pass && negateComparison) {
+      return { pass: false };
+    }
 
     if (ImageSnapshotMatcher.isFailure({ pass, updateSnapshots })) {
       mkdirp.sync(path.dirname(diffOutputPath));
@@ -173,6 +195,7 @@ export class ImageSnapshotMatcher {
       const output = [colors.red(`Snapshot comparison failed: `)];
       output.push(`Expected: ${colors.yellow(snapshotPath)}`);
       output.push(`Received: ${colors.yellow(diffOutputPath)}`);
+      output.push(`Diff ratio: ${diffRatio}`);
       result.pass = false;
       result.message = output.join("\n");
     } else if (!pass && updateSnapshots) {

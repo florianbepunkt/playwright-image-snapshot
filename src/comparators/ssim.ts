@@ -1,5 +1,5 @@
-import ssim, { Options } from "ssim.js";
 import { PNG } from "pngjs";
+import ssim, { Options } from "ssim.js";
 
 type compareWithSSIMArgs = {
   config: Partial<Options>;

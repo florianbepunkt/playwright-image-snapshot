@@ -4,8 +4,10 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "outDir": "./dist",
+    "skipLibCheck": true,
     "strict": true,
-    "target": "ES2017"
+    "target": "ES2017",
+    "types": ["node"]
   },
   "include": ["src/**/*"]
 }

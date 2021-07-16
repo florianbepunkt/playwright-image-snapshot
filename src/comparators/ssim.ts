@@ -33,13 +33,17 @@ export const compareWithSSIM = ({
   for (let ln = 0; ln !== height; ++ln) {
     for (let pos = 0; pos !== width; ++pos) {
       const rpos = ln * width + pos;
+      // initial value is transparent.  We'll add in the SSIM offset.
+      // red (ff) green (00) blue (00) alpha (00)
       const diffValue =
         0xff000000 +
         Math.floor(
           0xff *
             (1 -
               ssim_map.data[
+                // eslint-disable-next-line no-mixed-operators
                 ssim_map.width * Math.round((ssim_map.height * ln) / height) +
+                  // eslint-disable-next-line no-mixed-operators
                   Math.round((ssim_map.width * pos) / width)
               ])
         );

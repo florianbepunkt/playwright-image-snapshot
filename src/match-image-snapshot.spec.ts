@@ -3,8 +3,6 @@ import { test as base, expect } from "@playwright/test";
 import http from "http";
 import StaticServer from "node-static";
 
-// const SNAPSHOT_SETTINGS: ImageSnapshotOptions = { failureThreshold: 0.01, failureThresholdType: "percent" };
-
 const startServer = async (port: number = 8080, timeout: number = 5000): Promise<http.Server> => {
   const statiServer = new StaticServer.Server("./test-files");
 
@@ -48,19 +46,12 @@ const test = base.extend<{}, ServerWorkerFixtures>({
   ],
 });
 
-// test.describe("green page", () => {
-//   test.beforeAll(async () => await startServer());
-
-//   test("base", async ({ page }) => {
-//     await page.goto("http://localhost:8080/green-page.html");
-//     expect(await page.screenshot()).toMatchImageSnapshot(`green-page`, SNAPSHOT_SETTINGS);
-//   });
-// });
-
 test.describe("pixelmatch", () => {
   const config = { comparisonAlgorithm: "pixelmatch" as "pixelmatch" };
+  test.beforeEach(async ({}, testInfo) => (testInfo.snapshotSuffix = ""));
 
-  test("matches images", async ({ page, port }) => {
+  test("matches images", async ({ page, port }, testInfo) => {
+    console.log("testInfo.snapshotSuffix", testInfo.snapshotSuffix);
     await page.goto(`http://localhost:${port}/green-page.html`);
     expect(await page.screenshot()).toMatchImageSnapshot(`green-page`, config);
   });

@@ -12,7 +12,7 @@ import rimraf from "rimraf";
 
 export class ImageSnapshotMatcher {
   static readonly DEFAULT_PIXELMATCH_CONFIG = { threshold: 0.01 };
-  static readonly DEFAULT_SSIM_CONFIG = { ssim: "original" };
+  static readonly DEFAULT_SSIM_CONFIG = { ssim: "fast" };
 
   static isFailure = ({
     pass,
